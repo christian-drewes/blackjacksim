@@ -7,11 +7,6 @@ deck = []
 
 deckCopy = []
 
-p1Wins = 0
-p2Wins = 0
-d1Wins = 0
-d2Wins = 0
-
 #dont hit on
 limit = 12 
 
@@ -28,18 +23,9 @@ def gameReset():
     global playerAlt
     global dealer
     global dealerAlt
-    global p1Wins
-    global p2Wins
-    global d1Wins
-    global d2Wins
 
     deck = [['A', 11], ['2', 2], ['3', 3], ['4', 4], ['5', 5], ['6', 6],
         ['7', 7], ['8', 8], ['9', 9], ['10', 10], ['J', 10], ['Q', 10], ['K', 10]]*4
-
-    p1Wins += playerOne.wins
-    p2Wins += playerAlt.wins
-    d1Wins += dealer.wins
-    d2Wins += dealerAlt.wins
 
     deckCopy = []
     playerOne = Player()
@@ -98,17 +84,18 @@ def checkWinner(p, d):
     if p.getHandVal() > d.getHandVal():
         #player wins
         print("Player wins")
-        p.wins += 1
-        return "win"
+        p.result = 'win'
+        d.result = 'loss'
     elif p.getHandVal() < d.getHandVal():
         #dealer wins
         print("dealer wins")
-        d.wins += 1
-        return "loss"
+        p.result = 'loss'
+        d.result = 'win'
     else:
         #TIE
         print("Tie")
-        return "tie"
+        p.result = 'tie'
+        d.result = 'tie'
 
 if __name__ == '__main__':
     db.createTable()
@@ -116,15 +103,10 @@ if __name__ == '__main__':
     while iteration < 100:
         gameReset()
         initializeGame()
-        print(len(deck))
         playerAndDealerTurn()
-        db.insertData(iteration+1, checkWinner(playerOne, dealer), checkWinner(playerAlt, dealerAlt))
-
-        # Print final hand
-        playerOne.getHand()
-        playerAlt.getHand()
-        dealer.getHand()
-        dealerAlt.getHand()
+        checkWinner(playerOne, dealer)
+        checkWinner(playerAlt, dealerAlt)
+        db.insertData(iteration+1,playerOne.result, playerAlt.result, dealer.result, dealerAlt.result)
 
         iteration += 1
-    graph.createGraph(p1Wins, d1Wins, p2Wins, d2Wins)
+    db.graphWins()

@@ -4,7 +4,7 @@ class Player:
         self.handVal = 0
         self.isDone = False
         self.hasAce = False
-        self.wins = 0
+        self.result = 'none'
 
     def getHasAce(self):
         return self.hasAce
